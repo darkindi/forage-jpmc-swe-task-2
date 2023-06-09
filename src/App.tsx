@@ -8,6 +8,7 @@ import './App.css';
  */
 interface IState {
   data: ServerRespond[],
+  showGraph: Boolean, // added the show graph property so that our application knows it should have data and Showgraph as properties in order to be valid
 }
 
 /**
@@ -22,6 +23,7 @@ class App extends Component<{}, IState> {
       // data saves the server responds.
       // We use this state to parse data down to the child element (Graph) as element property
       data: [],
+      showGraph: false, // Initial stae of the graph added as hidden as we want the graph to show when the user clicks 'Start Streaming Data'
     };
   }
 
@@ -29,18 +31,33 @@ class App extends Component<{}, IState> {
    * Render Graph react component with state.data parse as property data
    */
   renderGraph() {
-    return (<Graph data={this.state.data}/>)
+    // To ensure that the graph doesn't render until a user clicks the 'Start Streaming' button we added a condition to render the graph
+    if(this.state.showGraph) {
+      return (<Graph data={this.state.data}/>)
+    }
   }
 
   /**
    * Get new data from server and update the state with the new data
    */
   getDataFromServer() {
-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
-      // Update the state by creating a new array of data that consists of
-      // Previous data in the state and the new data from server
-      this.setState({ data: [...this.state.data, ...serverResponds] });
-    });
+    //Added an interval to get the data continuosly instead of just getting data from it once every time you click the button using the setInterval function
+    let x=0;
+    const interval = setInterval(() => {
+      DataStreamer.getData((serverResponds: ServerRespond[]) => {
+        // Update the state by creating a new array of data that consists of
+        // Previous data in the state and the new data from server
+        this.setState({ 
+          data: serverResponds,
+          showGraph: true, //Added the show data state after the button is clicked as the initial state was false
+        });
+      });
+      x++;
+      if (x > 1000){
+        clearInterval(interval);
+      }
+    }, 100 );
+    
   }
 
   /**
