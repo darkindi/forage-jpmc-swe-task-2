@@ -49,7 +49,7 @@ class App extends Component<{}, IState> {
         // Previous data in the state and the new data from server
         this.setState({ 
           data: serverResponds,
-          showGraph: true, //Added the show data state after the button is clicked as the initial state was false
+          showGraph: true //Added the show data state after the button is clicked as the initial state was false
         });
       });
       x++;
